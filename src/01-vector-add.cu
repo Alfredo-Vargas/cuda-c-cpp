@@ -1,4 +1,14 @@
 #include <stdio.h>
+#include <assert.h>
+
+inline cudaError_t checkCuda(cudaError_t result)
+{
+  if (result != cudaSuccess) {
+    fprintf(stderr, "CUDA Runtime Error: %s\n", cudaGetErrorString(result));
+    assert(result == cudaSuccess);
+  }
+  return result;
+}
 
 void initWith(float num, float *a, int N)
 {
@@ -8,11 +18,26 @@ void initWith(float num, float *a, int N)
   }
 }
 
-__global__ void addVectorsInto(float *result, float *a, float *b, int N)
+__global__
+void addVectorsInto(float *result, float *a, float *b, int N)
 {
-  for(int i = 0; i < N; ++i)
+  int idx = threadIdx.x + blockIdx.x * blockDim.x;
+  // comment the line below to test without stride
+  int stride = blockDim.x * gridDim.x;
+  // This is for loop is for CPU-only applications
+  // for(int i = 0; i < N; ++i)
+  // {
+  //   result[i] = a[i] + b[i];
+  // }
+  // Without stride
+  // if (idx < N)
+  // {
+  //   result[idx] = a[idx] + b[idx];
+  // }
+  // With stride
+  for(int i = idx; i < N; i += stride)
   {
-    result[i] = a[i] + b[i];
+    result[idx] = a[idx] + b[idx];
   }
 }
 
@@ -31,7 +56,7 @@ void checkElementsAre(float target, float *array, int N)
 
 int main()
 {
-  const int N = 2<<20;
+  const int N = 2<<20;  // left shift operation gives: 2097152 as decimal
   size_t size = N * sizeof(float);
 
   float *a;
@@ -52,7 +77,21 @@ int main()
   initWith(4, b, N);
   initWith(0, c, N);
 
-  addVectorsInto(c, a, b, N);
+  // This function is executed by the CPU
+  // addVectorsInto(c, a, b, N);
+ 
+  size_t threadsPerBlock;
+  size_t numberOfBlocks;
+
+  threadsPerBlock = 256;
+  numberOfBlocks = (N + threadsPerBlock - 1) / threadsPerBlock;
+  printf("The number of blocks is: %d\n", numberOfBlocks);
+
+  // Accelerated version uses a kernel instead
+  addVectorsInto<<<numberOfBlocks, threadsPerBlock>>>(c, a, b, N);  // 8192 * 256 = 2097152
+
+  checkCuda( cudaGetLastError() );
+  checkCuda( cudaDeviceSynchronize() );
 
   checkElementsAre(7, c, N);
 
@@ -62,7 +101,7 @@ int main()
   // free(c)
 
   // Free Memory - Accelerated version
-  cudaFree(a);
-  cudaFree(b);
-  cudaFree(c);
+  checkCuda( cudaFree(a) );
+  checkCuda( cudaFree(b) );
+  checkCuda( cudaFree(c) );
 }
