@@ -23,22 +23,22 @@ void addVectorsInto(float *result, float *a, float *b, int N)
 {
   int idx = threadIdx.x + blockIdx.x * blockDim.x;
   // comment the line below to test without stride
-  int stride = blockDim.x * gridDim.x;
+  // int stride = blockDim.x * gridDim.x;
   // This is for loop is for CPU-only applications
   // for(int i = 0; i < N; ++i)
   // {
   //   result[i] = a[i] + b[i];
   // }
   // Without stride
-  // if (idx < N)
-  // {
-  //   result[idx] = a[idx] + b[idx];
-  // }
-  // With stride
-  for(int i = idx; i < N; i += stride)
+  if (idx < N)
   {
     result[idx] = a[idx] + b[idx];
   }
+  // With stride
+  // for(int i = idx; i < N; i += stride)
+  // {
+  //   result[idx] = a[idx] + b[idx];
+  // }
 }
 
 void checkElementsAre(float target, float *array, int N)
@@ -88,7 +88,7 @@ int main()
   printf("The number of blocks is: %d\n", numberOfBlocks);
 
   // Accelerated version uses a kernel instead
-  addVectorsInto<<<numberOfBlocks, threadsPerBlock>>>(c, a, b, N);  // 8192 * 256 = 2097152
+  addVectorsInto<<<numberOfBlocks, threadsPerBlock>>>(c, a, b, N);
 
   checkCuda( cudaGetLastError() );
   checkCuda( cudaDeviceSynchronize() );

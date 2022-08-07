@@ -1,8 +1,21 @@
 #include <stdio.h>
+#include <assert.h>
+#include <math.h>
 
 #define N  64
 
-__global__ void matrixMulGPU( int * a, int * b, int * c )
+inline cudaError_t checkCuda(cudaError_t result)
+{
+  if (result != cudaSuccess) {
+    fprintf(stderr, "CUDA Runtime Error: %s\n", cudaGetErrorString(result));
+    assert(result == cudaSuccess);
+  }
+  return result;
+}
+
+
+__global__
+void matrixMulGPU( int * a, int * b, int * c )
 {
   /*
    * Build out this kernel.
@@ -55,12 +68,16 @@ int main()
    * that can be used in matrixMulGPU above.
    */
 
-  dim3 threads_per_block;
-  dim3 number_of_blocks;
+  int thread_side = (int)sqrt(256)
+  int block_side = (int)sqrt((N + threadsPerBlock - 1) / threadsPerBlock);
+
+  dim3 threads_per_block(thread_side, thread_side, 1);
+  dim3 number_of_blocks(block_side, block_side, 1);
 
   matrixMulGPU <<< number_of_blocks, threads_per_block >>> ( a, b, c_gpu );
 
-  cudaDeviceSynchronize();
+  checkCuda( cudaGetLastError() );
+  checkCuda( cudaDeviceSynchronize() );
 
   // Call the CPU version to check our work
   matrixMulCPU( a, b, c_cpu );
