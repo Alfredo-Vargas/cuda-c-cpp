@@ -117,3 +117,59 @@ cudaMallocManaged(&a, size);
 cudaFree(a);
 
 ```
+
+## Error Handling
+- As in any application, error handling in accelerated CUDA code is essential. Many, if not most CUDA functions (see, for example, the memory management functions) return a value of type `cudaError_t`, which can be used to check whether or not an error occurred while calling the function. Here is an example where error handling is performed for a call to `cudaMallocManaged`:
+```c
+cudaError_t err;
+err = cudaMallocManaged(&a, N)                    // Assume the existence of `a` and `N`.
+
+if (err != cudaSuccess)                           // `cudaSuccess` is provided by CUDA.
+{
+  printf("Error: %s\n", cudaGetErrorString(err)); // `cudaGetErrorString` is provided by CUDA.
+}
+```
+- Launching kernels, which are defined to return void, do not return a value of type `cudaError_t`. To check for errors occurring at the time of a kernel launch, for example if the launch configuration is erroneous, CUDA provides the cudaGetLastError function, which does return a value of type `cudaError_t`.
+```c
+/*
+ * This launch should cause an error, but the kernel itself
+ * cannot return it.
+ */
+
+someKernel<<<1, -1>>>();  // -1 is not a valid number of threads.
+
+cudaError_t err;
+err = cudaGetLastError(); // `cudaGetLastError` will return the error from above.
+if (err != cudaSuccess)
+{
+  printf("Error: %s\n", cudaGetErrorString(err));
+}
+```
+- Finally, in order to catch errors that occur asynchronously, for example during the execution of an asynchronous kernel, it is essential to check the status returned by a subsequent synchronizing CUDA runtime API call, such as cudaDeviceSynchronize, which will return an error if one of the kernels launched previously should fail.
+
+### Cuda Error Handling Function
+- It can be helpful to create a macro that wraps CUDA function calls for checking errors. Here is an example,
+```c
+#include <stdio.h>
+#include <assert.h>
+
+inline cudaError_t checkCuda(cudaError_t result)
+{
+  if (result != cudaSuccess) {
+    fprintf(stderr, "CUDA Runtime Error: %s\n", cudaGetErrorString(result));
+    assert(result == cudaSuccess);
+  }
+  return result;
+}
+
+int main()
+{
+
+/*
+ * The macro can be wrapped around any function returning
+ * a value of type `cudaError_t`.
+ */
+
+  checkCuda( cudaDeviceSynchronize() )
+}
+```
