@@ -20,6 +20,17 @@ void matrixMulGPU( int * a, int * b, int * c )
   /*
    * Build out this kernel.
    */
+  int val = 0;
+  // Mapping threads to matrix indices of a matrix
+  int ix = threadIdx.x + blockIdx.x * blockDim.x;
+  int iy = threadIdx.y + blockIdx.y * blockDim.y;
+  if (ix < N && iy < N)
+  {
+    val = 0;
+    for ( int i = 0; i < N; ++i )
+      val += a[ix * N + i] * b[i * N + iy];
+    c[ix * N + iy] = val;
+  }
 }
 
 /*
@@ -43,7 +54,8 @@ void matrixMulCPU( int * a, int * b, int * c )
 
 int main()
 {
-  int *a, *b, *c_cpu, *c_gpu; // Allocate a solution matrix for both the CPU and the GPU operations
+  // Allocate a solution matrix for both the CPU and the GPU operations
+  int *a, *b, *c_cpu, *c_gpu;
 
   int size = N * N * sizeof (int); // Number of bytes of an N x N matrix
 
@@ -68,11 +80,8 @@ int main()
    * that can be used in matrixMulGPU above.
    */
 
-  int thread_side = (int)sqrt(256)
-  int block_side = (int)sqrt((N + threadsPerBlock - 1) / threadsPerBlock);
-
-  dim3 threads_per_block(thread_side, thread_side, 1);
-  dim3 number_of_blocks(block_side, block_side, 1);
+  dim3 threads_per_block(16, 16, 1);
+  dim3 number_of_blocks(N / threads_per_block.x + 1, N / threads_per_block.y + 1, 1);
 
   matrixMulGPU <<< number_of_blocks, threads_per_block >>> ( a, b, c_gpu );
 
