@@ -1,4 +1,3 @@
+.virtual_documents/
 src/bin/*
-
-.virtual_documents
 notebooks/.ipynb_checkpoints/
