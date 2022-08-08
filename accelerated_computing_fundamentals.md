@@ -173,3 +173,15 @@ int main()
   checkCuda( cudaDeviceSynchronize() )
 }
 ```
+
+# Managing Accelerated Application Memory with CUDA Unified Memory and nsys
+## Streaming Multiprocessors
+- NVIDIA GPUs contain functional units called: **Streaming Multiprocessors** or **SMs**
+- Blocks of threads are scheduled to run on SMs
+- Depending on the number of SMs on a GPU, and the requirements of a block, more than one block can be scheduled on an SM
+- Grid dimensions divisible by the number of SMs on a GPU can promote full SM utilization. Otherwise one will have fallow SMs:
+![SMs units on a GPU](./images/gpus_sms.png)
+- On the image above the Kernel has 24 blocks in the grid. Will use the 16 SMs of the GPU the first call and in the second time will only use 8 having the other 8 without use (fallow)
+
+## Unified Memory Behavior
+- When **UM** is allocated, it may not be resident initially on the CPU or the GPU
