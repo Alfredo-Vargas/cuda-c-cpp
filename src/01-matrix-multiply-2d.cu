@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <assert.h>
-#include <math.h>
 
 #define N  64
 
