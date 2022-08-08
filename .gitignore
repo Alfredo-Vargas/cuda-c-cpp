@@ -1,3 +1,4 @@
 src/bin/*
-.virtual_documents/notebooks/AC_CUDA_C.ipynb
+
+.virtual_documents
 notebooks/.ipynb_checkpoints/
