@@ -182,6 +182,31 @@ int main()
 - Grid dimensions divisible by the number of SMs on a GPU can promote full SM utilization. Otherwise one will have fallow SMs:
 ![SMs units on a GPU](./images/gpus_sms.png)
 - On the image above the Kernel has 24 blocks in the grid. Will use the 16 SMs of the GPU the first call and in the second time will only use 8 having the other 8 without use (fallow)
+- The GPUS that CUDA applications run on have processing units called **streaming multiprocessors**, or **SMs**. During kernel execution of threads are given to SMs to execute. In order to support the GPU's ability to perform as many parallel operations as possible, performance gains can often be had by choosing a grid size that has a number of blocks that is a multiple of the number of SMs on a given GPU.
+- Additionally, SMs create, manage, schedule, and execute groupings of 32 threads from within a block called **warps**. A more in depth coverate of SMs and warps can be found [here](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#hardware-implementation)
+- It is important to know that performance gains can also be had by choosing a block size that has a number of threads that is a multiple of 32
+
+## Programmatically Querying GPU Device Properties
+- In order to support portability, since the number of SMs on a GPU can differ depending on the specific GPU being used, the number of SMs should not be hard-coded into a code bases. Rather, this information should be acquired programatically.
+
+- The following shows how, in CUDA C/C++, to obtain a C struct which contains many properties about the currently active GPU device, including its number of SMs:
+
+```c
+int deviceId;
+
+cudaGetDevice(&deviceId);                  // `deviceId` now points to the id of the currently active GPU.
+
+cudaDeviceProp props;
+cudaGetDeviceProperties(&props, deviceId); // `props` now has many useful properties about
+                                           // the active GPU device.
+```
+- To get other hardware properties of your GPU architecture refer to the following documentation: [CUDA Runtume Docs](https://docs.nvidia.com/cuda/cuda-runtime-api/structcudaDeviceProp.html)
 
 ## Unified Memory Behavior
-- When **UM** is allocated, it may not be resident initially on the CPU or the GPU
+- When UM is allocated, the memory is not resident yet on either the host or the device. When either the host or device attempts to access the memory, a [page fault](https://en.wikipedia.org/wiki/Page_fault) will occur, at which point the host or device will migrate the needed data in batches. Similarly, at any point when the CPU, or any GPU in the accelerated system, attempts to access memory not yet resident on it, page faults will occur and trigger its migration.
+
+- The ability to page fault and migrate memory on demand is tremendously helpful for ease of development in your accelerated applications. Additionally, when working with data that exhibits sparse access patterns, for example when it is impossible to know which data will be required to be worked on until the application actually runs, and for scenarios when data might be accessed by multiple GPU devices in an accelerated system with multiple GPUs, on-demand memory migration is remarkably beneficial.
+
+- There are times - for example when data needs are known prior to runtime, and large contiguous blocks of memory are required - when the overhead of page faulting and migrating data on demand incurs an overhead cost that would be better avoided.
+
+- Much of the remainder of this lab will be dedicated to understanding on-demand migration, and how to identify it in the profiler's output. With this knowledge you will be able to reduce the overhead of it in scenarios when it would be beneficial.
