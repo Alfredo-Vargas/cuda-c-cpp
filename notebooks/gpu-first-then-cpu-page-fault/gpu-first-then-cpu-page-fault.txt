@@ -1,0 +1,73 @@
+Generating '/tmp/nsys-report-aadc.qdstrm'
+[1/8] [========================100%] report1.nsys-rep
+[2/8] [========================100%] report1.sqlite
+[3/8] Executing 'nvtxsum' stats report
+SKIPPED: /home/alfredo/projects/cuda-c-cpp/notebooks/report1.sqlite does not contain NV Tools Extension (NVTX) data.
+[4/8] Executing 'osrtsum' stats report
+
+Operating System Runtime API Statistics:
+
+ Time (%)  Total Time (ns)  Num Calls    Avg (ns)       Med (ns)    Min (ns)   Max (ns)     StdDev (ns)        Name     
+ --------  ---------------  ---------  -------------  ------------  --------  -----------  -------------  --------------
+     46.8      402,560,644          3  134,186,881.3  86,223,146.0   943,614  315,393,884  162,619,596.0  sem_wait      
+     39.7      341,511,515         27   12,648,574.6  10,065,594.0     1,072  100,127,725   20,175,671.8  poll          
+      6.4       55,191,940         23    2,399,649.6   2,055,306.0    27,390   20,527,936    4,479,309.9  sem_timedwait 
+      6.1       52,446,250        495      105,952.0       7,049.0     1,059   19,571,875    1,094,191.9  ioctl         
+      0.7        6,255,423         17      367,966.1       7,298.0     1,247    6,127,478    1,484,213.8  mmap          
+      0.2        1,485,078         42       35,359.0       5,948.5     3,262      627,242      112,530.9  mmap64        
+      0.1          515,622          5      103,124.4      52,779.0    30,059      198,593       84,922.3  pthread_create
+      0.1          452,546         59        7,670.3       7,115.0     2,705       31,762        3,771.0  open64        
+      0.0          203,321         42        4,841.0       2,793.0     1,319       82,956       12,411.0  fopen         
+      0.0           72,944          6       12,157.3       6,782.0     3,495       37,639       13,169.0  fgets         
+      0.0           40,756          6        6,792.7       3,824.5     2,111       23,681        8,355.0  munmap        
+      0.0           32,924         24        1,371.8       1,285.0     1,020        2,498          339.4  fclose        
+      0.0           31,213         10        3,121.3       2,915.5     1,481        7,653        1,841.6  write         
+      0.0           23,096          5        4,619.2       4,349.0     2,077        6,886        1,781.6  open          
+      0.0           18,650         13        1,434.6       1,237.0     1,062        2,350          474.6  read          
+      0.0           18,014          5        3,602.8       2,636.0     1,645        8,220        2,718.9  fread         
+      0.0           11,587          2        5,793.5       5,793.5     3,321        8,266        3,496.6  socket        
+      0.0           10,839          1       10,839.0      10,839.0    10,839       10,839            0.0  connect       
+      0.0            7,191          1        7,191.0       7,191.0     7,191        7,191            0.0  pipe2         
+      0.0            3,340          1        3,340.0       3,340.0     3,340        3,340            0.0  fopen64       
+      0.0            3,308          3        1,102.7       1,141.0     1,023        1,144           69.0  fcntl         
+      0.0            1,392          1        1,392.0       1,392.0     1,392        1,392            0.0  bind          
+
+[5/8] Executing 'cudaapisum' stats report
+
+CUDA API Statistics:
+
+ Time (%)  Total Time (ns)  Num Calls    Avg (ns)       Med (ns)      Min (ns)     Max (ns)    StdDev (ns)           Name         
+ --------  ---------------  ---------  -------------  -------------  -----------  -----------  -----------  ----------------------
+     86.6      106,656,131          1  106,656,131.0  106,656,131.0  106,656,131  106,656,131          0.0  cudaMallocManaged     
+      8.4       10,299,951          1   10,299,951.0   10,299,951.0   10,299,951   10,299,951          0.0  cudaDeviceSynchronize 
+      5.0        6,208,014          1    6,208,014.0    6,208,014.0    6,208,014    6,208,014          0.0  cudaFree              
+      0.0           22,936          1       22,936.0       22,936.0       22,936       22,936          0.0  cudaLaunchKernel      
+      0.0              638          1          638.0          638.0          638          638          0.0  cuModuleGetLoadingMode
+
+[6/8] Executing 'gpukernsum' stats report
+
+CUDA Kernel Statistics:
+
+ Time (%)  Total Time (ns)  Instances    Avg (ns)      Med (ns)     Min (ns)    Max (ns)   StdDev (ns)            Name          
+ --------  ---------------  ---------  ------------  ------------  ----------  ----------  -----------  ------------------------
+    100.0       10,290,056          1  10,290,056.0  10,290,056.0  10,290,056  10,290,056          0.0  deviceKernel(int *, int)
+
+[7/8] Executing 'gpumemtimesum' stats report
+
+CUDA Memory Operation Statistics (by time):
+
+ Time (%)  Total Time (ns)  Count  Avg (ns)  Med (ns)  Min (ns)  Max (ns)  StdDev (ns)              Operation            
+ --------  ---------------  -----  --------  --------  --------  --------  -----------  ---------------------------------
+    100.0       20,661,099    768  26,902.5   5,487.0       926   159,620     45,771.3  [CUDA Unified Memory memcpy DtoH]
+
+[8/8] Executing 'gpumemsizesum' stats report
+
+CUDA Memory Operation Statistics (by size):
+
+ Total (MB)  Count  Avg (MB)  Med (MB)  Min (MB)  Max (MB)  StdDev (MB)              Operation            
+ ----------  -----  --------  --------  --------  --------  -----------  ---------------------------------
+    134.218    768     0.175     0.033     0.004     1.044        0.301  [CUDA Unified Memory memcpy DtoH]
+
+Generated:
+    /home/alfredo/projects/cuda-c-cpp/notebooks/report1.nsys-rep
+    /home/alfredo/projects/cuda-c-cpp/notebooks/report1.sqlite

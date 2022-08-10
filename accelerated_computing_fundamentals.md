@@ -203,6 +203,11 @@ cudaGetDeviceProperties(&props, deviceId); // `props` now has many useful proper
 - To get other hardware properties of your GPU architecture refer to the following documentation: [CUDA Runtume Docs](https://docs.nvidia.com/cuda/cuda-runtime-api/structcudaDeviceProp.html)
 
 ## Unified Memory Behavior
+
+- You have been allocating memory intended for use either by host or device code with cudaMallocManaged and up until now have enjoyed the benefits of this method - automatic memory migration, ease of programming - without diving into the details of how the Unified Memory (UM) allocated by `cudaMallocManaged` actual works.
+
+- `nsys` profile provides details about UM management in accelerated applications, and using this information, in conjunction with a more-detailed understanding of how UM works, provides additional opportunities to optimize accelerated applications.
+
 - When UM is allocated, the memory is not resident yet on either the host or the device. When either the host or device attempts to access the memory, a [page fault](https://en.wikipedia.org/wiki/Page_fault) will occur, at which point the host or device will migrate the needed data in batches. Similarly, at any point when the CPU, or any GPU in the accelerated system, attempts to access memory not yet resident on it, page faults will occur and trigger its migration.
 
 - The ability to page fault and migrate memory on demand is tremendously helpful for ease of development in your accelerated applications. Additionally, when working with data that exhibits sparse access patterns, for example when it is impossible to know which data will be required to be worked on until the application actually runs, and for scenarios when data might be accessed by multiple GPU devices in an accelerated system with multiple GPUs, on-demand memory migration is remarkably beneficial.
@@ -210,3 +215,9 @@ cudaGetDeviceProperties(&props, deviceId); // `props` now has many useful proper
 - There are times - for example when data needs are known prior to runtime, and large contiguous blocks of memory are required - when the overhead of page faulting and migrating data on demand incurs an overhead cost that would be better avoided.
 
 - Much of the remainder of this lab will be dedicated to understanding on-demand migration, and how to identify it in the profiler's output. With this knowledge you will be able to reduce the overhead of it in scenarios when it would be beneficial.
+
+### Page Fault
+- In computing, a **page fault** sometimes called **PF** or **hard fault** is an exception that the memory management unit (MMU) raises when a process accesses a memory page without proper preparations. Accessing the page requires a mapping to be added to the process's **virtual address space**. This process requires the page contents to be loaded from a backing store, such as disk. The MMU detects the page fault, but the OS Kernel handles the exception by making the required page accessible in the physical memory or denying an illegal memory access
+- Valid page faults are common and necessary to increase the amount of memory available to programs in any operating system that utilizes virtual memory, such as Windows, macOS, and the Linux kernel
+- There are three types of page faults: Minor, Major and Invalid
+- Page faults degrade system performance and can cause thrashing.

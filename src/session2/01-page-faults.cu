@@ -30,14 +30,49 @@ int main()
    * Conduct experiments to learn more about the behavior of
    * `cudaMallocManaged`.
    *
-   * What happens when unified memory is accessed only by the GPU?
    * What happens when unified memory is accessed only by the CPU?
+   * What happens when unified memory is accessed only by the GPU?
    * What happens when unified memory is accessed first by the GPU then the CPU?
    * What happens when unified memory is accessed first by the CPU then the GPU?
    *
    * Hypothesize about UM behavior, page faulting specificially, before each
    * experiment, and then verify by running `nsys`.
    */
+
+  // Evidence of Memory Migration or Page Faulting when unified memory 
+  // is accessed only by the CPU
+  // hostFunction(a, N);
+
+  // Evidence of Memory Migration or Page Faulting when unified memory 
+  // is accessed only by the GPU
+  // size_t threadsperBlock;
+  // size_t numberOfBlocks;
+  // threadsperBlock = 256;
+  // numberOfBlocks = (N + threadsperBlock - 1) / threadsperBlock;
+  // deviceKernel<<<numberOfBlocks, threadsperBlock>>>(a, N);
+  // cudaDeviceSynchronize();
+
+  // Evidence of Memory Migration or Page Faulting when unified memory
+  // is accessed first by the CPU and then by the GPU
+  // hostFunction(a, N);
+  //
+  // size_t threadsperBlock;
+  // size_t numberOfBlocks;
+  // threadsperBlock = 256;
+  // numberOfBlocks = (N + threadsperBlock - 1) / threadsperBlock;
+  // deviceKernel<<<numberOfBlocks, threadsperBlock>>>(a, N);
+  // cudaDeviceSynchronize();
+
+  // Evidence of Memory Migration or Page Faulting when unified memory
+  // is accessed first by the GPU and then by the CPU
+  size_t threadsperBlock;
+  size_t numberOfBlocks;
+  threadsperBlock = 256;
+  numberOfBlocks = (N + threadsperBlock - 1) / threadsperBlock;
+  deviceKernel<<<numberOfBlocks, threadsperBlock>>>(a, N);
+  cudaDeviceSynchronize();
+
+  hostFunction(a, N);
 
   cudaFree(a);
 }
