@@ -174,7 +174,7 @@ int main()
 }
 ```
 
-# Managing Accelerated Application Memory with CUDA Unified Memory and nsys
+# Managing Accelerated Application Memory with CUDA Unified Memory and Nsight Systems (nsys)
 ## Streaming Multiprocessors
 - NVIDIA GPUs contain functional units called: **Streaming Multiprocessors** or **SMs**
 - Blocks of threads are scheduled to run on SMs
@@ -221,3 +221,15 @@ cudaGetDeviceProperties(&props, deviceId); // `props` now has many useful proper
 - Valid page faults are common and necessary to increase the amount of memory available to programs in any operating system that utilizes virtual memory, such as Windows, macOS, and the Linux kernel
 - There are three types of page faults: Minor, Major and Invalid
 - Page faults degrade system performance and can cause thrashing.
+
+## Evidence of Memory Migration using Nsight Systems (nsys)
+- One is able to detect memory migrations when we look at the report given by
+```bash
+nsys profile --stats=true <path/to/binary>
+```
+- Looking at the CUDA Memory Operation Statistics (by time or by size). Then we could look for entries with the Operation description as either HtoD or DtoH, which then will imply that we have memory migration. Example:
+![memory migration evidence](./images/memory-migrations-evidence.png)
+
+## Asynchronous Memory Prefetching
+- A powerful technique to reduce the overhead of page faulting and on-demand memory migrations, both in host-to-device and device-to-host memory transfers, is called asynchronous memory prefetching. Using this technique allows programmers to asynchronously migrate unified memory (UM) to any CPU or GPU device in the system, in the background, prior to its use by application code. By doing this, GPU kernels and CPU function performance can be increased on account of reduced page fault and on-demand data migration overhead.
+- Prefetching also tends to migrate data in larger chunks, and therefore fewer trips, than on-demand migration. This makes it an **excellent fit when data access needs are known before runtime, and when data access patterns are not sparse**.

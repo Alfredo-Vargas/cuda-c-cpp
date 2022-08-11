@@ -64,13 +64,19 @@ int main()
   cudaMallocManaged(&a, size);
   cudaMallocManaged(&b, size);
   cudaMallocManaged(&c, size);
+  
+  int deviceId;
+  cudaGetDevice(&deviceId);
+
+  // Prefetching the vectors
+  cudaMemPrefetchAsync(a, size, deviceId);
+  // cudaMemPrefetchAsync(b, size, deviceId);
+  // cudaMemPrefetchAsync(c, size, deviceId);
 
   size_t threadsPerBlock;
   size_t numberOfBlocks;
 
   threadsPerBlock = 800;
-  int deviceId;
-  cudaGetDevice(&deviceId);
 
   cudaDeviceProp props;
   cudaGetDeviceProperties(&props, deviceId);
@@ -91,6 +97,7 @@ int main()
   initWith<<<numberOfBlocks, threadsPerBlock>>>(3, a, N);
   initWith<<<numberOfBlocks, threadsPerBlock>>>(4, b, N);
   initWith<<<numberOfBlocks, threadsPerBlock>>>(0, c, N);
+
 
   /*
    * nsys should register performance changes when execution configuration

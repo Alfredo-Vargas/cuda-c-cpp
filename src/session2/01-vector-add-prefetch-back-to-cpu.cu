@@ -64,13 +64,19 @@ int main()
   cudaMallocManaged(&a, size);
   cudaMallocManaged(&b, size);
   cudaMallocManaged(&c, size);
+  
+  int deviceId;
+  cudaGetDevice(&deviceId);
+
+  // Prefetching the vectors to the GPU
+  cudaMemPrefetchAsync(a, size, deviceId);
+  cudaMemPrefetchAsync(b, size, deviceId);
+  cudaMemPrefetchAsync(c, size, deviceId);
 
   size_t threadsPerBlock;
   size_t numberOfBlocks;
 
   threadsPerBlock = 800;
-  int deviceId;
-  cudaGetDevice(&deviceId);
 
   cudaDeviceProp props;
   cudaGetDeviceProperties(&props, deviceId);
@@ -92,6 +98,7 @@ int main()
   initWith<<<numberOfBlocks, threadsPerBlock>>>(4, b, N);
   initWith<<<numberOfBlocks, threadsPerBlock>>>(0, c, N);
 
+
   /*
    * nsys should register performance changes when execution configuration
    * is updated.
@@ -108,6 +115,10 @@ int main()
 
   asyncErr = cudaDeviceSynchronize();
   if(asyncErr != cudaSuccess) printf("\nError: %s\n", cudaGetErrorString(asyncErr));
+
+
+  // Prefetching the output vector back to CPU. `cudaCpudeviceId` is a built-in CUDA variable
+  cudaMemPrefetchAsync(c, size, cudaCpuDeviceId);
 
   checkElementsAre(7, c, N);
 

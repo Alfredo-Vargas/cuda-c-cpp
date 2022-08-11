@@ -1,0 +1,81 @@
+------------------------------
+Vector length is: 33554432
+Number of threads per block is: 800
+Number of blocks is: 41950
+Success! All values calculated correctly.
+Generating '/tmp/nsys-report-2c56.qdstrm'
+[1/8] [========================100%] report1.nsys-rep
+[2/8] [========================100%] report1.sqlite
+[3/8] Executing 'nvtxsum' stats report
+SKIPPED: /home/alfredo/projects/cuda-c-cpp/notebooks/report1.sqlite does not contain NV Tools Extension (NVTX) data.
+[4/8] Executing 'osrtsum' stats report
+
+Operating System Runtime API Statistics:
+
+ Time (%)  Total Time (ns)  Num Calls    Avg (ns)       Med (ns)    Min (ns)   Max (ns)     StdDev (ns)        Name     
+ --------  ---------------  ---------  -------------  ------------  --------  -----------  -------------  --------------
+     45.7      399,636,908          3  133,212,302.7  85,423,274.0   824,798  313,388,836  161,669,146.4  sem_wait      
+     39.0      341,626,297         26   13,139,473.0  10,064,728.0    31,135  100,118,530   20,418,828.1  poll          
+      7.3       64,249,780         22    2,920,444.5   2,056,651.5    20,834   20,539,487    5,751,774.8  sem_timedwait 
+      6.0       52,452,368        514      102,047.4       6,733.0     1,078   18,954,619    1,051,188.9  ioctl         
+      1.7       14,490,660         24      603,777.5       5,735.5     1,245    5,958,292    1,639,168.9  mmap          
+      0.2        1,421,823         42       33,852.9       6,038.5     3,260      590,815      106,757.5  mmap64        
+      0.1          652,779          5      130,555.8     177,794.0    28,374      204,749       82,615.7  pthread_create
+      0.1          438,012         59        7,423.9       7,288.0     2,662       16,935        2,363.6  open64        
+      0.0          132,516         43        3,081.8       2,727.0     1,117       11,268        1,853.6  fopen         
+      0.0           81,576          6       13,596.0       9,401.5     6,972       37,902       12,005.3  fgets         
+      0.0           50,789         10        5,078.9       2,679.0     1,510       24,474        6,957.4  munmap        
+      0.0           39,022         26        1,500.8       1,379.0     1,039        3,303          513.6  fclose        
+      0.0           30,480         10        3,048.0       2,698.0     1,475        5,567        1,562.1  write         
+      0.0           21,579          5        4,315.8       4,678.0     2,156        6,173        1,759.4  open          
+      0.0           20,101         13        1,546.2       1,332.0     1,123        2,469          475.0  read          
+      0.0           20,066          8        2,508.3       2,026.0     1,127        7,027        1,877.5  fread         
+      0.0           10,938          2        5,469.0       5,469.0     3,070        7,868        3,392.7  socket        
+      0.0            9,881          1        9,881.0       9,881.0     9,881        9,881            0.0  connect       
+      0.0            6,259          4        1,564.8       1,096.0     1,000        3,067        1,003.7  fcntl         
+      0.0            6,183          1        6,183.0       6,183.0     6,183        6,183            0.0  pipe2         
+      0.0            3,739          1        3,739.0       3,739.0     3,739        3,739            0.0  fopen64       
+      0.0            1,484          1        1,484.0       1,484.0     1,484        1,484            0.0  bind          
+
+[5/8] Executing 'cudaapisum' stats report
+
+CUDA API Statistics:
+
+ Time (%)  Total Time (ns)  Num Calls    Avg (ns)     Med (ns)    Min (ns)    Max (ns)    StdDev (ns)            Name         
+ --------  ---------------  ---------  ------------  -----------  ---------  -----------  ------------  ----------------------
+     82.5      105,898,728          3  35,299,576.0     33,497.0     13,953  105,851,278  61,099,567.0  cudaMallocManaged     
+     11.3       14,451,998          3   4,817,332.7  4,261,850.0  4,211,057    5,979,091   1,006,432.7  cudaFree              
+      5.2        6,707,419          1   6,707,419.0  6,707,419.0  6,707,419    6,707,419           0.0  cudaDeviceSynchronize 
+      0.9        1,207,170          3     402,390.0    400,016.0    392,182      414,972      11,579.0  cudaMemPrefetchAsync  
+      0.0           30,903          4       7,725.8      3,451.0      2,462       21,539       9,228.7  cudaLaunchKernel      
+      0.0              626          1         626.0        626.0        626          626           0.0  cuModuleGetLoadingMode
+
+[6/8] Executing 'gpukernsum' stats report
+
+CUDA Kernel Statistics:
+
+ Time (%)  Total Time (ns)  Instances   Avg (ns)     Med (ns)    Min (ns)   Max (ns)   StdDev (ns)                       Name                     
+ --------  ---------------  ---------  -----------  -----------  ---------  ---------  -----------  ----------------------------------------------
+     54.1        3,627,438          3  1,209,146.0  1,209,274.0  1,207,322  1,210,842      1,763.5  initWith(float, float *, int)                 
+     45.9        3,080,452          1  3,080,452.0  3,080,452.0  3,080,452  3,080,452          0.0  addVectorsInto(float *, float *, float *, int)
+
+[7/8] Executing 'gpumemtimesum' stats report
+
+CUDA Memory Operation Statistics (by time):
+
+ Time (%)  Total Time (ns)  Count  Avg (ns)  Med (ns)  Min (ns)  Max (ns)  StdDev (ns)              Operation            
+ --------  ---------------  -----  --------  --------  --------  --------  -----------  ---------------------------------
+    100.0       20,661,149    768  26,902.5   5,551.5       895   159,939     45,773.4  [CUDA Unified Memory memcpy DtoH]
+
+[8/8] Executing 'gpumemsizesum' stats report
+
+CUDA Memory Operation Statistics (by size):
+
+ Total (MB)  Count  Avg (MB)  Med (MB)  Min (MB)  Max (MB)  StdDev (MB)              Operation            
+ ----------  -----  --------  --------  --------  --------  -----------  ---------------------------------
+    134.218    768     0.175     0.033     0.004     1.044        0.301  [CUDA Unified Memory memcpy DtoH]
+
+Generated:
+    /home/alfredo/projects/cuda-c-cpp/notebooks/report1.nsys-rep
+    /home/alfredo/projects/cuda-c-cpp/notebooks/report1.sqlite
+
