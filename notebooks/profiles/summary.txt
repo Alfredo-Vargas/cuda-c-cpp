@@ -1,7 +1,0 @@
-- Obviously the worst performance is for the single threaded
-- 800 threads per block has the best performance 800 / 32 = 25 !
-  - 92_195_330 nanoseconds
-- 512 threads per block has the second best performance
-  - 93_489_681 nanoseconds
-- 100 threads per block has the third best performance 100 / 32 =
-  - 97_189_210
