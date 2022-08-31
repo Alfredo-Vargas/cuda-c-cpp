@@ -233,3 +233,20 @@ nsys profile --stats=true <path/to/binary>
 ## Asynchronous Memory Prefetching
 - A powerful technique to reduce the overhead of page faulting and on-demand memory migrations, both in host-to-device and device-to-host memory transfers, is called asynchronous memory prefetching. Using this technique allows programmers to asynchronously migrate unified memory (UM) to any CPU or GPU device in the system, in the background, prior to its use by application code. By doing this, GPU kernels and CPU function performance can be increased on account of reduced page fault and on-demand data migration overhead.
 - Prefetching also tends to migrate data in larger chunks, and therefore fewer trips, than on-demand migration. This makes it an **excellent fit when data access needs are known before runtime, and when data access patterns are not sparse**.
+
+## Concurrent CUDA Streams
+- A stream is a series of instructions, and CUDA has a **default stream**
+- By default, CUDA kernels run in the default stream, which are executed in order (serially)
+![default stream](./images/default-stream.png)
+- However, kernels in **different, non-default streams**, can interact concurrently
+![non-default streams](./images/non-default-streams.png)
+- The default stream is special: **it blocks all kernels in all other streams**
+![blocking streams](./images/blocking-streams.png)
+
+## Non-Unified Memory 
+- Memory can be allocated directly to the GPU with `cudaMalloc` and directly to the host with `cudaMallocHost`. Memory allocated in either of these ways can be **copied** to other locations in the system with `cudaMemCpy`.
+- Copying leaves to copies in the system
+
+## cudaMemcpyAsync
+- `cudaMemcpyAsync` can asynchronously transfer memory over a non-default stream. This can allow the **overlapping** memory copies and computation
+![memory copy and computation](./images/memory-copy-computation.png)
