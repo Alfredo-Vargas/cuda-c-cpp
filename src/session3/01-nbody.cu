@@ -20,17 +20,14 @@ typedef struct { float x, y, z, vx, vy, vz; } Body;
 
 __global__
 void bodyForce(Body *p, float dt, int n) {
-
-  // we use stride to parallelize the follwing calculation of forces
-  // within a single iteration they are completely independent and therefore
-  // it can be parallelized
+  
   int index = threadIdx.x + blockIdx.x * blockDim.x;
   int stride = blockDim.x * gridDim.x;
-
+  
   for (int i = index; i < n; i += stride) {
     float Fx = 0.0f; float Fy = 0.0f; float Fz = 0.0f;
 
-    for (int j = index; j < n; j += stride) {
+    for (int j = 0; j < n; j += stride) {
       float dx = p[j].x - p[i].x;
       float dy = p[j].y - p[i].y;
       float dz = p[j].z - p[i].z;
@@ -45,6 +42,18 @@ void bodyForce(Body *p, float dt, int n) {
   }
 }
 
+__global__ void integratePosition(Body *p, float dt, int n)
+{
+    int index = threadIdx.x + blockIdx.x * blockDim.x;
+    int stride = blockDim.x * gridDim.x;
+
+    for (int i = index ; i < n; i += stride) 
+    {
+        p[i].x += p[i].vx*dt;
+        p[i].y += p[i].vy*dt;
+        p[i].z += p[i].vz*dt;
+    }
+}
 
 int main(const int argc, const char** argv) {
 
@@ -86,20 +95,6 @@ int main(const int argc, const char** argv) {
     solution_values = "09-nbody/files/solution_65536";
   }
 
-
-  // we define an array of bodies
-  // Body *p;
-
-  // float *buf;
-
-  // buf = (float *)malloc(bytes);
-
-  // Body *p = (Body*)buf;
-  // we allocate the memory using cudaMalloc
-  // cudaMallocManaged(&p, bytes);
-  // we prefetch the memory to Async to avoid HtoD memory transfer
-  // cudaMemPrefetchAsync(p, bytes, deviceId);
-
   if (argc > 2) initialized_values = argv[2];
   if (argc > 3) solution_values = argv[3];
 
@@ -109,11 +104,15 @@ int main(const int argc, const char** argv) {
   int bytes = nBodies * sizeof(Body);
   float *buf;
 
-  buf = (float *)malloc(bytes);
+  // buf = (float *)malloc(bytes);
+  cudaMallocManaged(&buf, bytes);
 
   Body *p = (Body*)buf;
 
+  cudaMemPrefetchAsync(buf, bytes, cudaCpuDeviceId);
+
   read_values_from_file(initialized_values, buf, bytes);
+
 
   double totalTime = 0.0;
 
@@ -129,19 +128,23 @@ int main(const int argc, const char** argv) {
    * You will likely wish to refactor the work being done in `bodyForce`,
    * and potentially the work to integrate the positions.
    */
+    cudaStream_t stream;
+    cudaStreamCreate(&stream);
 
-    bodyForce<<<numberOfBlocks, threadsPerBlock>>>(p, dt, nBodies); // compute interbody forces
+    bodyForce<<<numberOfBlocks, threadsPerBlock, 0, stream>>>(p, dt, nBodies); // compute interbody forces
 
+    cudaStreamDestroy(stream);  // Note that a value, not a pointer, is passed to `cudaDestroyStream`
   /*
    * This position integration cannot occur until this round of `bodyForce` has completed.
    * Also, the next round of `bodyForce` cannot begin until the integration is complete.
    */
 
-    for (int i = 0 ; i < nBodies; i++) { // integrate position
-      p[i].x += p[i].vx*dt;
-      p[i].y += p[i].vy*dt;
-      p[i].z += p[i].vz*dt;
-    }
+    integratePosition<<<numberOfBlocks, threadsPerBlock>>>(p, dt, nBodies);
+    // for (int i = 0 ; i < nBodies; i++) { // integrate position
+    //   p[i].x += p[i].vx*dt;
+    //   p[i].y += p[i].vy*dt;
+    //   p[i].z += p[i].vz*dt;
+    // }
 
     const double tElapsed = GetTimer() / 1000.0;
     totalTime += tElapsed;
@@ -153,6 +156,7 @@ int main(const int argc, const char** argv) {
   asyncErr = cudaDeviceSynchronize();
   if(asyncErr != cudaSuccess) printf("\nError: %s\n", cudaGetErrorString(asyncErr));
 
+
   double avgTime = totalTime / (double)(nIters);
   float billionsOfOpsPerSecond = 1e-9 * nBodies * nBodies / avgTime;
   write_values_to_file(solution_values, buf, bytes);
@@ -160,9 +164,8 @@ int main(const int argc, const char** argv) {
   // You will likely enjoy watching this value grow as you accelerate the application,
   // but beware that a failure to correctly synchronize the device might result in
   // unrealistically high values.
-  printf("\n%0.3f Billion Interactions / second\n", billionsOfOpsPerSecond);
+  printf("%0.3f Billion Interactions / second\n", billionsOfOpsPerSecond);
 
-  // free(buf);
-  cudaFree(p);
+  cudaFree(buf);
 }
 
