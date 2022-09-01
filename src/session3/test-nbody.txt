@@ -1,6 +1,0 @@
-Running nbody simulator with 4096 bodies
-----------------------------------------
-
-Application should run faster than 0.9s
-Your application ran in: 4.1267s
-Your application is not yet fast enough
