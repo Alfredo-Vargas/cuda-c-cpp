@@ -250,3 +250,13 @@ nsys profile --stats=true <path/to/binary>
 ## cudaMemcpyAsync
 - `cudaMemcpyAsync` can asynchronously transfer memory over a non-default stream. This can allow the **overlapping** memory copies and computation
 ![memory copy and computation](./images/memory-copy-computation.png)
+
+---
+# Cuda Optimization Check List
+
+1. `nsys-ui` : open the gui Nsight Systems application for visualization performance
+2. Study the code to be subjected to optimization. What tasks run in parallel? What tasks run in serial? If there are already present optimizations, are there page faults present during Kernel execution with Unified Memory HtoD or DtoH?
+3. `cudaPrefetchAsync(value, size, deviceId)` : apply prefetch to avoid page faults.
+4. Initialize your variables in separate Kernel whenever possible, by doing so you can completely ditch HtoD transfers!
+5. Prefetch `DtoH`, to avoid page faults whenever evaluations are performed
+6. Implement non-default streams for tasks that do not require serial execution, and implement your serial tasks in the default stream. The default stream will automatically halt all tasks in running on non-default-streams until completion
