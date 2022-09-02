@@ -4,10 +4,10 @@ import numpy as np
 
 all_inputs_and_solutions = {
   4096: [
-    ('/dli/assessment/test_files/initialized_4096_A', '/dli/assessment/test_files/solution_4096_A'),
+    ('09-nbody/files/initialized_4096', '09-nbody/files/solution_4096'),
   ],
   65536: [
-    ('/dli/assessment/test_files/initialized_65536_A', '/dli/assessment/test_files/solution_65536_A'),
+    ('09-nbody/files/initialized_65536', '09-nbody/files/solution_65536'),
     # ('/dli/assessment/test_files/initialized_65536_B', '/dli/assessment/test_files/solution_65536_B'),
     # ('/dli/assessment/test_files/initialized_65536_C', '/dli/assessment/test_files/solution_65536_C')
   ]
@@ -43,7 +43,7 @@ def compare_files(a, b):
 
 def passes_with_n_of(n):
   gpu_type = get_gpu_type()
-  student_output = '/dli/assessment/test_files/student_output'
+  student_output = '09-nbody/files/'
   nbodies = 2<<int(n)
   inputs_and_solutions = all_inputs_and_solutions[nbodies]
 
@@ -57,7 +57,7 @@ def passes_with_n_of(n):
     start = time.perf_counter()
 
     try:
-      p = subprocess.run(['/dli/task/nbody', n, input, student_output], capture_output=True, text=True, timeout=5)
+      p = subprocess.run(['nbody', n, input, student_output], capture_output=True, text=True, timeout=5)
       ops_per_second = p.stdout
     except:
       print('Your application has taken over 5 seconds to run and is not fast enough')
@@ -89,5 +89,5 @@ def run_assessment():
     return
   if passes_with_n_of('15') is False:
     return
-  open('/dli/assessment_results/PASSED', 'w+')
+  # open('/dli/assessment_results/PASSED', 'w+')
   print('Congratulations! You passed the assessment!\nSee instructions below to generate a certificate, and see if you can accelerate the simulator even more!')
